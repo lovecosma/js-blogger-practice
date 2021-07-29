@@ -4,16 +4,47 @@ const posts_container = () => document.getElementById("posts-container")
 const formContainer = () => document.getElementById("form-container")
 
 
-const likePost = e => {
-    let formData = {
-        post: {
-            likes: post.likes + 1
+const updatePost = post => {
+    let postDiv = document.getElementById(`post ${post.id}`)
+    let likeP = postDiv.querySelector(".likes")
+    likeP.innerText = post.likes
+}
+
+function deletePost(e){
+    e.preventDefault()
+    let configObj = {
+        method: "DELETE",
+        headers: {
+            "Content-Type" : "application/json",
+            "Accept": "application/json",
         }
     }
 
-    let configObj = {
-        
+    fetch(`http://localhost:3000/posts/${this.id}`, configObj)
+    .then(resp => resp.json())
+    .then(posts => renderPosts(posts))
+}
+
+function likePost(e){
+    let formData = {
+        post: {
+            likes: this.likes + 1
+        }
     }
+    // debugger
+
+    let configObj = {
+        method: "PATCH",
+        headers: {
+            "Content-Type" : "application/json",
+            "Accept": "application/json",
+        }, 
+        body: JSON.stringify(formData)
+    }
+
+    fetch(`http://localhost:3000/posts/${this.id}`, configObj)
+    .then(resp => resp.json())
+    .then(posts => renderPosts(posts))
 }
 
 
@@ -30,17 +61,26 @@ const renderPosts = posts => {
         let content = document.createElement('p')
         let likes = document.createElement('p')
         let plus = document.createElement("button")
+        let deleteButton = document.createElement('button')
 
+        div.id = `post ${post.id}`
         title.innerText = post.title
         content.innerText = post.content
         likes.innerText = post.likes
+        likes.className = "likes"
         plus.innerText = "♥"
+        deleteButton.innerText = "delete"
+        
+
         plus.addEventListener("click", likePost.bind(post))
+        deleteButton.addEventListener("click", deletePost.bind(post))
 
         div.appendChild(title)
         div.appendChild(content)
         div.appendChild(likes)
-        formContainer().appendChild(div)
+        div.appendChild(plus)
+        div.appendChild(deleteButton)
+        posts_container().appendChild(div)
 
         div.style.padding = "25px"
 
